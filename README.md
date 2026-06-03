@@ -1,130 +1,154 @@
-# 🧠 Structures Visualizer
-
-### Interactive Learning & Visualization Playground
-
-A premium, interactive web application designed to help developers, students, and educators visualize, learn, and experiment with data structures and algorithms in real time.
-
-[![Netlify Status](https://api.netlify.com/api/v1/badges/e8e6b189-d652-4e94-ab6a-dfc846bf48f7/deploy-status)](https://structures-visualizer.netlify.app/)
-[![React Version](https://img.shields.io/badge/react-v19.0-blue.svg)](https://react.dev/)
-[![Vite Version](https://img.shields.io/badge/vite-v8.0-indigo.svg)](https://vite.dev/)
-
----
-
-## 🌐 Live Application
-
-- **Public URL:** [structures-visualizer.netlify.app](https://structures-visualizer.netlify.app/)
-- **Repository:** [github.com/harishnukala90/Structures-Visualizer](https://github.com/harishnukala90/Structures-Visualizer)
-
-### 📱 Scan to Access on Mobile
-Scan the QR code below with your mobile device to open the visualizer instantly:
-
-<p align="left">
-  <img src="public/qrcode.png" width="180" alt="Scan QR Code to visit Web App" />
-</p>
-
----
-
-## 🎨 Overview & Logo
+# Structures Visualizer — Interactive Learning & Visualization Playground
 
 <p align="center">
-  <img src="public/logo.png" width="120" alt="Structures Visualizer Logo" />
+  <img src="public/logo.png" alt="Structures Visualizer logo" width="180" />
 </p>
 
-**Structures Visualizer** provides a modern, glassmorphism-themed playground that breaks down complex abstract data types into step-by-step interactive animations. Designed with sleek dark modes, HSL tailored accent colors, and custom micro-animations, it delivers a state-of-the-art educational experience.
+<p align="center">
+  <strong>Visualize, learn, and experiment with 19 data structures and algorithms — step by step, in real time.</strong>
+</p>
 
----
+Structures Visualizer is a React + Vite application that transforms abstract data structures into animated, interactive playgrounds. It supports step-by-step traversals, live operation controls, multilingual code snippets (C, C++, Java, Python), and built-in complexity metrics — all inside a sleek dark-themed UI.
 
-## ✨ Features
+## Live Demo
 
-- **19 Supported Data Structures & Algorithms:** Comprehensive interactive simulations spanning primitive, linear, non-linear, and hash-based structures.
-- **Multilingual Code Viewer:** Side-by-side code blocks in **C**, **C++**, **Java**, and **Python** highlighting the active execution lines as the animation plays.
-- **Interactive Animation Engine:** Full playback controls (Play, Pause, Step Forward, Step Backward, Reset, and Speed Slider) for detailed debugging of state changes.
-- **Dynamic Operations HUD:** Direct inputs for searching, inserting, updating, and deleting nodes.
-- **Complexity HUD:** Instant lookup for best-case, average-case, and worst-case time and space complexities.
-- **Internationalization (i18n):** Multi-language UI support.
+<p align="center">
+  <a href="https://structures-visualizer.netlify.app" target="_blank" rel="noopener noreferrer">
+    <strong>🚀 Open Live Demo</strong>
+  </a>
+</p>
 
----
+<p align="center">
+  <img src="public/qrcode.png" alt="QR Code for Structures Visualizer" width="180" />
+</p>
 
-## 🧱 Supported Structures & Categories
+Production URL: `https://structures-visualizer.netlify.app`
 
-| Category | Data Structures / Algorithms |
+## Highlights
+
+- 19 interactive data structures and algorithms across 6 categories
+- Step-by-step animation engine with Play, Pause, Step Forward, Step Backward, and Speed controls
+- Multilingual code viewer — C, C++, Java, and Python with syntax highlighting
+- Live complexity HUD — search, insert, delete, space, and time complexities per structure
+- Category filter sidebar with responsive mobile toggle
+- Internationalization (i18n) support via react-i18next
+- Glassmorphism dark-mode UI with smooth micro-animations
+
+## Stack
+
+- React 19
+- Vite 8
+- Tailwind CSS 4
+- `@vitejs/plugin-react`
+- `lucide-react`
+- `i18next`
+- `react-i18next`
+
+## Requirements
+
+Install Node.js first. Use the current LTS version from:
+
+```text
+https://nodejs.org/
+```
+
+After installation, confirm both commands work:
+
+```bash
+node -v
+npm -v
+```
+
+## Setup
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+## Run Locally
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:5173
+```
+
+## Useful Scripts
+
+```bash
+npm run dev      # Start local development server with HMR
+npm run build    # Build for production (outputs to dist/)
+npm run preview  # Preview the production build locally
+npm run lint     # Run ESLint checks across the project
+```
+
+## Project Structure
+
+```text
+Structure-Visualizer/
+  index.html
+  vite.config.js
+  eslint.config.js
+  package.json
+  public/
+    logo.png
+    qrcode.png
+  src/
+    App.jsx
+    App.css
+    main.jsx
+    index.css
+    dataStructures.js
+    animationEngine.js
+    i18n.js
+    components/
+      Visualizer.jsx
+```
+
+## Supported Structures & Categories
+
+| Category | Structures / Algorithms |
 | :--- | :--- |
-| **Primitives** | `Integer`, `Float`, `Character`, `Boolean`, `Pointer` |
-| **Linear** | `1D Array`, `2D Array` (Grid), `Singly Linked List`, `Doubly Linked List`, `Circular Linked List`, `Doubly Circular Linked List`, `Stack`, `Queue`, `Circular Queue`, `Deque` |
-| **Non-Linear** | `Binary Search Tree (BST)`, `AVL Tree` (Self-Balancing), `Graph (BFS & DFS Traversals)` |
-| **Hash-Based** | `Hash Table` (Chaining Collision Resolution), `Hash Set` |
-| **Searching** | `Linear Search`, `Binary Search` (halving bounds visualization) |
-| **Sorting** | `Bubble Sort`, `Selection Sort`, `Insertion Sort`, `Merge Sort`, `Quick Sort` |
+| **Primitives** | Integer, Float, Character, Boolean, Pointer |
+| **Linear** | 1D Array, 2D Array, Singly Linked List, Doubly Linked List, Circular Linked List, Doubly Circular Linked List, Stack, Queue, Circular Queue, Deque |
+| **Non-Linear** | Binary Search Tree, AVL Tree, Graph (BFS / DFS) |
+| **Hash-Based** | Hash Table, Hash Set |
+| **Searching** | Linear Search, Binary Search |
+| **Sorting** | Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, Quick Sort |
 
----
+## Deployment on Netlify via GitHub
 
-## 🛠️ Technology Stack
+This repository is wired for automatic continuous deployment on Netlify.
 
-- **Framework:** [React 19](https://react.dev/) + [Vite 8](https://vite.dev/) (fast HMR build tool)
-- **Styling:** Tailwind CSS v4 + Custom Modern HSL Vanilla CSS styling
-- **Icons:** [Lucide React](https://lucide.dev/)
-- **Localization:** [i18next](https://www.i18next.com/) & [react-i18next](https://react.i18next.com/)
+### Build Settings
 
----
+| Setting | Value |
+| :--- | :--- |
+| **Build command** | `npm run build` |
+| **Publish directory** | `dist` |
+| **Branch** | `main` |
 
-## 🚀 Getting Started (Local Development)
+### Steps
 
-To run the application locally on your machine, follow these steps:
+1. Log in to [app.netlify.com](https://app.netlify.com).
+2. Click **Add new site** → **Import an existing project**.
+3. Choose **GitHub** and select the `Structures-Visualizer` repository.
+4. Set the build command to `npm run build` and publish directory to `dist`.
+5. Click **Deploy Site**.
 
-### Prerequisites
-Make sure you have [Node.js](https://nodejs.org/) installed (version 18+ recommended).
+Every push to `main` will trigger an automatic redeploy.
 
-### Installation & Run
+## Notes
 
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/harishnukala90/Structures-Visualizer.git
-   cd Structure-Visualizer
-   ```
-
-2. **Install Dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Start Local Development Server:**
-   ```bash
-   npm run dev
-   ```
-   Open your browser and navigate to `http://localhost:5173` (or the port specified in terminal).
-
-4. **Build for Production:**
-   ```bash
-   npm run build
-   ```
-   The built assets will be generated in the `dist/` directory.
-
----
-
-## ☁️ Deployment on Netlify using GitHub
-
-This repository is configured for automated Continuous Deployment via Netlify linked with your GitHub repository.
-
-### Netlify Deployment Configuration
-
-Whenever you push to the `main` branch, Netlify will build and deploy your app automatically using these settings:
-
-- **Build Command:** `npm run build`
-- **Publish Directory:** `dist`
-- **Node Version:** Auto-detected (recommends Node 18+)
-
-### Manual Netlify Linking Steps
-1. Log in to your [Netlify Dashboard](https://app.netlify.com/).
-2. Click **Add new site** > **Import an existing project**.
-3. Choose **GitHub** and authorize access to your repositories.
-4. Select the **`Structures-Visualizer`** repository.
-5. In the build settings, set:
-   - **Branch to deploy:** `main`
-   - **Build command:** `npm run build`
-   - **Publish directory:** `dist`
-6. Click **Deploy Site**. Future commits pushed to GitHub will trigger automatic updates!
-
----
-
-## 📄 License
-This project is open-source and available under the [MIT License](LICENSE).
+- All animation state is managed locally in React — no backend or database required.
+- Prompt history and theme preferences are persisted in browser local storage.
+- The `animationEngine.js` file contains all step-generation logic for every supported structure.
+- `dataStructures.js` holds the full configuration — default states, complexities, code snippets, and category metadata for all 19 structures.

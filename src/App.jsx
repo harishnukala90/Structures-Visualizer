@@ -15,6 +15,9 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeStructure, setActiveStructure] = useState(DATA_STRUCTURES[0]); // default: Integer
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isComplexityOpen, setIsComplexityOpen] = useState(false);
+  const complexityRef = useRef(null);
+  const visualizerRef = useRef(null);
   
   // Data State representing the current visual frame
   const [structureState, setStructureState] = useState(activeStructure.defaultState);
@@ -40,6 +43,19 @@ export default function App() {
 
   // Timer Ref for play/pause interval
   const timerRef = useRef(null);
+
+  // Close complexity dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (complexityRef.current && !complexityRef.current.contains(e.target)) {
+        setIsComplexityOpen(false);
+      }
+    };
+    if (isComplexityOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isComplexityOpen]);
 
   const handleStructureSelect = (ds) => {
     setActiveStructure(ds);
@@ -114,6 +130,11 @@ export default function App() {
       setCurrentStepIdx(0);
       setStructureState(steps[0].state);
       setIsPlaying(true);
+      // Scroll viewport so the visualizer section top is in view (all screen sizes)
+      if (visualizerRef.current) {
+        const top = visualizerRef.current.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      }
     }
   };
 
@@ -242,20 +263,84 @@ export default function App() {
       {/* --- HEADER --- */}
       <header className="border-b border-slate-900 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between max-w-7xl mx-auto gap-4">
-          <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-xl shadow-lg shadow-purple-500/20 text-white">
-              <Cpu size={22} className="animate-spin-slow" />
+          {/* Logo + Title */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2.5 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-xl shadow-lg shadow-purple-500/20 text-white">
+                <Cpu size={22} className="animate-spin-slow" />
+              </div>
+              <div>
+                <h1 className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-purple-400 via-indigo-200 to-blue-400 bg-clip-text text-transparent m-0">
+                  {t('title')}
+                </h1>
+                <p className="text-[11px] text-slate-500 font-medium">{t('subtitle')}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-purple-400 via-indigo-200 to-blue-400 bg-clip-text text-transparent m-0">
-                {t('title')}
-              </h1>
-              <p className="text-[11px] text-slate-500 font-medium">{t('subtitle')}</p>
+
+            {/* Mobile-only Complexity Button */}
+            <div className="md:hidden relative" ref={complexityRef}>
+              <button
+                onClick={() => setIsComplexityOpen(!isComplexityOpen)}
+                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-indigo-500/20 flex items-center gap-1.5"
+              >
+                <Activity size={12} />
+                {isComplexityOpen ? 'Hide' : 'Complexity'}
+              </button>
+
+              {/* Complexity Dropdown Panel */}
+              {isComplexityOpen && (
+                <div className="absolute right-0 top-full mt-2 z-50 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-2xl p-3 shadow-2xl shadow-slate-950/60 w-max max-w-[90vw] animate-fade-in">
+                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2.5 px-1">
+                    {activeStructure.name} — Complexities
+                  </p>
+                  <div className="flex flex-col gap-1.5">
+                    {activeStructure.category === 'sorting' ? (
+                      <>
+                        <div className="flex items-center justify-between gap-4 px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl">
+                          <span className="text-[8px] font-bold text-purple-400 uppercase tracking-widest whitespace-nowrap">Best</span>
+                          <span className="text-xs font-mono font-bold text-white whitespace-nowrap">{activeStructure.complexities.best}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4 px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl">
+                          <span className="text-[8px] font-bold text-blue-400 uppercase tracking-widest whitespace-nowrap">Average</span>
+                          <span className="text-xs font-mono font-bold text-white whitespace-nowrap">{activeStructure.complexities.avg}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4 px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl">
+                          <span className="text-[8px] font-bold text-rose-400 uppercase tracking-widest whitespace-nowrap">Worst</span>
+                          <span className="text-xs font-mono font-bold text-white whitespace-nowrap">{activeStructure.complexities.worst}</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between gap-4 px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl">
+                          <span className="text-[8px] font-bold text-purple-400 uppercase tracking-widest whitespace-nowrap">{t('search')}</span>
+                          <span className="text-xs font-mono font-bold text-white whitespace-nowrap">{activeStructure.complexities.search}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4 px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl">
+                          <span className="text-[8px] font-bold text-blue-400 uppercase tracking-widest whitespace-nowrap">{t('insert')}</span>
+                          <span className="text-xs font-mono font-bold text-white whitespace-nowrap">{activeStructure.complexities.insert}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4 px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl">
+                          <span className="text-[8px] font-bold text-rose-400 uppercase tracking-widest whitespace-nowrap">{t('delete')}</span>
+                          <span className="text-xs font-mono font-bold text-white whitespace-nowrap">{activeStructure.complexities.delete}</span>
+                        </div>
+                      </>
+                    )}
+                    <div className="flex items-center justify-between gap-4 px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl">
+                      <span className="text-[8px] font-bold text-emerald-400 uppercase tracking-widest whitespace-nowrap">{t('space')}</span>
+                      <span className="text-xs font-mono font-bold text-white whitespace-nowrap">{activeStructure.complexities.space}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4 px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl">
+                      <span className="text-[8px] font-bold text-amber-400 uppercase tracking-widest whitespace-nowrap">{t('time')}</span>
+                      <span className="text-xs font-mono font-bold text-white whitespace-nowrap">{getTimeComplexity()}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Complexity HUD */}
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Complexity HUD — desktop only */}
+          <div className="hidden md:flex flex-wrap items-center gap-3">
             {activeStructure.category === 'sorting' ? (
               <>
                 <div className="px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-center min-w-[70px]">
@@ -391,7 +476,7 @@ export default function App() {
         <main className="flex-1 flex flex-col gap-6 min-w-0">
           
           {/* Visualizer Canvas & Live Explanation */}
-          <section className="glass-panel rounded-3xl p-6 flex flex-col gap-4">
+          <section ref={visualizerRef} className="glass-panel rounded-3xl p-6 flex flex-col gap-4">
             
             {/* Header info */}
             <div className="flex justify-between items-start gap-4">
@@ -447,20 +532,22 @@ export default function App() {
 
               return (
                 <>
-                  <Visualizer 
-                    structureId={activeStructure.id} 
-                    state={structureState} 
-                    currentStep={currentStep} 
-                    stepStatus={status} 
-                  />
+                  <div className="w-full overflow-x-auto lg:overflow-x-visible vis-mobile-scroll">
+                    <Visualizer 
+                      structureId={activeStructure.id} 
+                      state={structureState} 
+                      currentStep={currentStep} 
+                      stepStatus={status} 
+                    />
+                  </div>
 
                   {/* Step Description HUD */}
-                  <div className={`p-4 bg-slate-950/80 border ${hudBorderClass} rounded-2xl flex items-center justify-between min-h-[64px] transition-all duration-300`}>
+                  <div className={`p-4 bg-slate-950/80 border ${hudBorderClass} rounded-2xl flex items-start justify-between gap-3 transition-all duration-300`}>
                     <div className="flex items-center space-x-3 min-w-0">
                       <div className={`p-2 ${hudIconBgClass} rounded-lg shrink-0 transition-colors duration-300`}>
                         <Activity size={18} className={isPlaying ? 'animate-pulse' : ''} />
                       </div>
-                      <p className="text-sm font-medium text-slate-300 tracking-wide leading-relaxed truncate-2-lines">
+                      <p className="text-sm font-medium text-slate-300 tracking-wide leading-relaxed">
                         {currentStep
                           ? currentStep.description
                           : t('systemIdle')}
@@ -850,7 +937,7 @@ export default function App() {
                 {activeStructure.category === 'searching' && (
                   <button 
                     onClick={() => runOperation('search')}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 animate-pulse"
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5"
                   >
                     <Search size={13} />
                     <span>{t('runSearch')}</span>
@@ -859,13 +946,16 @@ export default function App() {
 
                 {/* --- Sorting Algorithms --- */}
                 {activeStructure.category === 'sorting' && (
-                  <button 
-                    onClick={() => runOperation('sort')}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5"
-                  >
-                    <Play size={13} />
-                    <span>{t('runSort')}</span>
-                  </button>
+                  <div className="w-full border border-purple-500/25 bg-purple-500/5 rounded-2xl p-3 flex flex-wrap items-center gap-2">
+                    <span className="text-[9px] font-bold text-purple-400 uppercase tracking-widest w-full mb-0.5">Sorting</span>
+                    <button 
+                      onClick={() => runOperation('sort')}
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shadow-md shadow-purple-500/15"
+                    >
+                      <Play size={13} />
+                      <span>{t('runSort')}</span>
+                    </button>
+                  </div>
                 )}
 
                 {/* --- Stack --- */}
@@ -983,11 +1073,13 @@ export default function App() {
                       <Search size={13} />
                       <span>{t('search')}</span>
                     </button>
-                    <div className="flex items-center space-x-2">
+                    {/* Traversal bordered section */}
+                    <div className="w-full border border-indigo-500/25 bg-indigo-500/5 rounded-2xl p-3 flex flex-wrap items-center gap-2">
+                      <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest w-full mb-0.5">{t('traversalType')}</span>
                       <select
                         value={treeTraversalMode}
                         onChange={(e) => setTreeTraversalMode(e.target.value)}
-                        className="px-2 py-1.5 bg-slate-950 border border-slate-900 rounded-xl text-xs font-semibold text-white focus:outline-none"
+                        className="px-2 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-white focus:outline-none focus:border-indigo-600 transition-all"
                       >
                         <option value="inorder">{t('inorder')}</option>
                         <option value="preorder">{t('preorder')}</option>

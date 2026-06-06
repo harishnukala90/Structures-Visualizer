@@ -63,6 +63,7 @@ const resources = {
       postorder: "Post-Order DFS",
       levelorder: "Level-Order BFS",
       traverse: "Traverse",
+      traversalType: "Traversal Type",
       runTraversal: "Run Traversal",
       animationTimelineControls: "Animation Timeline Controls",
       speedSlider: "SPEED SLIDER",

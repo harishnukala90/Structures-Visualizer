@@ -14,69 +14,10 @@ export default function Visualizer({ structureId, state: mainState, currentStep,
     setPanOffset({ x: 0, y: 0 });
   };
 
-  const nodes = mainState?.nodes || [];
-  const nodesDep = nodes.map(n => `${n.val ?? n.id}:${n.x}:${n.y}`).join('|');
-  const isTreeOrGraph = 
-    structureId === 'bst' || 
-    structureId === 'avl' || 
-    structureId === 'graph' ||
-    ((structureId === 'linear_search' || structureId === 'binary_search') && mainState?.structureType === 'tree');
 
-  React.useEffect(() => {
-    if (!isTreeOrGraph || nodes.length === 0) {
-      resetViewport();
-      return;
-    }
+  // NOTE: No auto-fit on mount — default view intentionally matches RESET VIEW (scale=1, pan=0).
+  // The resetViewport() function and the initial state are identical: scale=1, panOffset={x:0,y:0}.
 
-    const timer = setTimeout(() => {
-      const container = containerRef.current;
-      if (!container) return;
-
-      const rect = container.getBoundingClientRect();
-      const W = rect.width;
-      const H = rect.height;
-      if (W === 0 || H === 0) return;
-
-      const padding = 32;
-
-      const nodePixelXs = nodes.map(n => (n.x / 100) * W);
-      const nodePixelYs = nodes.map(n => (n.y / 100) * H);
-
-      const minNodeX = Math.min(...nodePixelXs);
-      const maxNodeX = Math.max(...nodePixelXs);
-      const minNodeY = Math.min(...nodePixelYs);
-      const maxNodeY = Math.max(...nodePixelYs);
-
-      const contentWidth = maxNodeX - minNodeX;
-      const contentHeight = maxNodeY - minNodeY;
-
-      const scaleX = contentWidth > 0 ? (W - 2 * padding) / contentWidth : 1.0;
-      const scaleY = contentHeight > 0 ? (H - 2 * padding) / contentHeight : 1.0;
-
-      const targetScale = Math.min(scaleX, scaleY, 1.0);
-
-      let panX = 0;
-      let panY = 0;
-
-      const targetLayoutId = ((structureId === 'linear_search' || structureId === 'binary_search') && mainState?.structureType === 'tree') ? 'bst' : structureId;
-
-      if (targetLayoutId === 'graph') {
-        const centerX = (minNodeX + maxNodeX) / 2;
-        const centerY = (minNodeY + maxNodeY) / 2;
-        panX = (W / 2 - centerX) * targetScale;
-        panY = (H / 2 - centerY) * targetScale;
-      } else {
-        const centerX = (minNodeX + maxNodeX) / 2;
-        panX = (W / 2 - centerX) * targetScale;
-        panY = padding - H / 2 - (minNodeY - H / 2) * targetScale;
-      }
-
-      setScale(targetScale);
-      setPanOffset({ x: panX, y: panY });
-    }, 50);
-
-    return () => clearTimeout(timer);
-  }, [structureId, nodesDep, isTreeOrGraph]);
 
   React.useEffect(() => {
     const container = containerRef.current;
@@ -265,7 +206,7 @@ export default function Visualizer({ structureId, state: mainState, currentStep,
           <div className="flex flex-col items-center justify-center p-6 space-y-6 w-full max-w-xl mx-auto bg-slate-900/60 border border-slate-700/50 rounded-2xl backdrop-blur-xl shadow-2xl">
             <h3 className="text-sm font-semibold tracking-wider text-purple-400 uppercase">Pointer Variable & Target Dereference</h3>
             
-            <div className="relative flex flex-col md:flex-row items-center justify-between w-full p-4 gap-8 md:gap-4">
+            <div className="flex flex-col md:flex-row items-center justify-between w-full p-4 gap-8 md:gap-4">
               {/* Pointer Cell */}
               <div className="flex flex-col items-center p-4 bg-purple-950/40 border border-purple-500/30 rounded-xl w-44 shadow-lg">
                 <span className="text-xs text-purple-400 font-bold mb-1">Pointer ({typeStr} *ptr)</span>
@@ -426,79 +367,82 @@ export default function Visualizer({ structureId, state: mainState, currentStep,
         const isCircular = structId === 'circular_linked_list' || structId === 'doubly_circular_linked_list';
         const isDoublyCircular = structId === 'doubly_circular_linked_list';
         return (
-          <div className="relative flex flex-col items-center p-8 w-full overflow-x-auto min-h-[220px]">
-            <div className="flex items-center space-x-12 px-4 pt-4">
-              {nodes.map((nodeVal, idx) => {
-                const isActive = idx === activeIdx;
-                const isLast = idx === nodes.length - 1;
-                const isLow = idx === low;
-                const isHigh = idx === high;
-                const isMid = idx === mid;
-                return (
-                  <div key={idx} className="relative flex flex-col items-center shrink-0">
-                    {/* Low/High/Mid indicators above node for binary search */}
-                    {(low !== -1 || high !== -1 || mid !== -1) && (
-                      <div className="absolute top-[-20px] flex space-x-0.5 text-[8px] font-mono font-bold leading-none z-10">
-                        {isLow && <span className="text-blue-400 bg-blue-500/10 px-1 rounded border border-blue-500/25">L</span>}
-                        {isHigh && <span className="text-rose-400 bg-rose-500/10 px-1 rounded border border-rose-500/25">H</span>}
-                        {isMid && <span className="text-amber-400 bg-amber-500/10 px-1 rounded border border-amber-500/25">M</span>}
-                      </div>
-                    )}
-                    <div className="relative flex items-center">
-                      {/* Node Structure */}
-                      <div className={`flex items-stretch border-2 rounded-xl overflow-hidden font-mono shadow-md transition-all duration-300 ${
-                        isActive 
-                          ? 'border-amber-400 ring-4 ring-amber-400/20 scale-105 shadow-amber-400/20' 
-                          : isMid
-                          ? 'border-amber-500/50 scale-105 shadow-md shadow-amber-500/10'
-                          : (low !== -1 && high !== -1 && (idx < low || idx > high))
-                          ? 'border-slate-900 opacity-40'
-                          : 'border-slate-700'
-                      }`}>
-                        {/* Prev Pointer block for Doubly */}
-                        {isDoubly && (
-                          <div className="px-2 py-3 bg-slate-900 border-r border-slate-800 text-[10px] text-purple-400 flex items-center select-none font-bold">
-                            {idx === 0 ? (isCircular ? '➔ Tail' : '•') : 'P'}
-                          </div>
-                        )}
-                        {/* Node Value */}
-                        <div className={`px-4 py-3 font-semibold text-lg flex items-center justify-center min-w-[50px] ${
-                          isActive 
-                            ? 'bg-amber-950/40 text-amber-300' 
-                            : isMid
-                            ? 'bg-amber-950/20 text-amber-250 font-bold'
-                            : (low !== -1 && high !== -1 && (idx < low || idx > high))
-                            ? 'bg-slate-950 text-gray-500'
-                            : 'bg-slate-800 text-white'
-                        }`}>
-                          {nodeVal}
-                        </div>
-                        {/* Next Pointer Block */}
-                        <div className="px-3 py-3 bg-slate-900 border-l border-slate-800 text-[10px] text-blue-400 flex items-center select-none font-bold">
-                          {isLast ? (isCircular ? '➔ Head' : 'NULL') : 'N'}
-                        </div>
-                      </div>
-
-                      {/* Forward Pointer Arrow */}
-                      {!isLast && (
-                        <div className="absolute right-[-44px] w-10 flex items-center justify-center text-blue-400">
-                          {isDoubly ? (
-                            <span className="text-xl tracking-tighter">⇄</span>
-                          ) : (
-                            <span className="text-xl">➔</span>
-                          )}
+          <div className="flex flex-col items-center w-full min-h-[200px] py-10 pb-12">
+            {/* Scrollable row — inline-flex ensures the row is exactly as wide as its content */}
+            <div className="w-full overflow-x-auto pb-6">
+              <div className="inline-flex items-center gap-0 px-6 min-w-max mx-auto">
+                {nodes.map((nodeVal, idx) => {
+                  const isActive = idx === activeIdx;
+                  const isLast = idx === nodes.length - 1;
+                  const isLow = idx === low;
+                  const isHigh = idx === high;
+                  const isMid = idx === mid;
+                  return (
+                    <div key={idx} className="relative flex flex-col items-center shrink-0">
+                      {/* Low/High/Mid indicators above node */}
+                      {(low !== -1 || high !== -1 || mid !== -1) && (
+                        <div className="absolute top-[-20px] flex space-x-0.5 text-[8px] font-mono font-bold leading-none z-10">
+                          {isLow && <span className="text-blue-400 bg-blue-500/10 px-1 rounded border border-blue-500/25">L</span>}
+                          {isHigh && <span className="text-rose-400 bg-rose-500/10 px-1 rounded border border-rose-500/25">H</span>}
+                          {isMid && <span className="text-amber-400 bg-amber-500/10 px-1 rounded border border-amber-500/25">M</span>}
                         </div>
                       )}
+                      <div className="relative flex items-center">
+                        {/* Node Structure */}
+                        <div className={`flex items-stretch border-2 rounded-xl overflow-hidden font-mono shadow-md transition-all duration-300 ${
+                          isActive 
+                            ? 'border-amber-400 ring-4 ring-amber-400/20 scale-105 shadow-amber-400/20' 
+                            : isMid
+                            ? 'border-amber-500/50 scale-105 shadow-md shadow-amber-500/10'
+                            : (low !== -1 && high !== -1 && (idx < low || idx > high))
+                            ? 'border-slate-900 opacity-40'
+                            : 'border-slate-700'
+                        }`}>
+                          {/* Prev Pointer block for Doubly */}
+                          {isDoubly && (
+                            <div className="px-2 py-3 border-r border-slate-800 text-[10px] text-purple-400 flex items-center select-none font-bold bg-transparent">
+                              {idx === 0 ? (isCircular ? '➔ T' : '•') : 'P'}
+                            </div>
+                          )}
+                          {/* Node Value */}
+                          <div className={`px-4 py-3 font-semibold text-lg flex items-center justify-center min-w-[50px] bg-transparent ${
+                            isActive 
+                              ? 'text-amber-300 bg-amber-500/10' 
+                              : isMid
+                              ? 'text-amber-250 font-bold bg-amber-500/5'
+                              : (low !== -1 && high !== -1 && (idx < low || idx > high))
+                              ? 'text-gray-500'
+                              : 'text-white'
+                          }`}>
+                            {nodeVal}
+                          </div>
+                          {/* Next Pointer Block */}
+                          <div className="px-2 py-3 border-l border-slate-800 text-[10px] text-blue-400 flex items-center select-none font-bold bg-transparent">
+                            {isLast ? (isCircular ? '→H' : 'N') : 'N'}
+                          </div>
+                        </div>
+
+                        {/* Arrow between nodes */}
+                        {!isLast && (
+                          <div className="w-8 flex items-center justify-center text-blue-400 shrink-0">
+                            {isDoubly ? (
+                              <span className="text-lg tracking-tighter">⇄</span>
+                            ) : (
+                              <span className="text-lg">➔</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {/* Index marker below node */}
+                      <span className="text-[10px] text-slate-500 font-mono mt-2 bg-slate-950/50 px-1.5 py-0.5 rounded border border-slate-900 select-none whitespace-nowrap">idx: {idx}</span>
                     </div>
-                    {/* Index marker below node */}
-                    <span className="text-[10px] text-slate-500 font-mono mt-2 bg-slate-950/50 px-1.5 py-0.5 rounded border border-slate-900 select-none">idx: {idx}</span>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
             {isCircular && (
-              <span className="text-xs text-purple-400 mt-5 font-mono font-bold bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20 select-none">
-                Circular Linked List: Last Node's Next points to Head {isDoublyCircular && '& Head\'s Prev points to Tail'}
+              <span className="text-xs text-purple-400 font-mono font-bold bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20 select-none">
+                Circular: Last Node's Next → Head {isDoublyCircular && '& Head\'s Prev → Tail'}
               </span>
             )}
           </div>
@@ -1030,7 +974,7 @@ export default function Visualizer({ structureId, state: mainState, currentStep,
         backgroundImage: 'radial-gradient(rgba(168, 85, 247, 0.08) 1.5px, transparent 1.5px)',
         backgroundSize: '16px 16px',
       }}
-      className={`w-full flex items-center justify-center p-4 bg-slate-900/35 border border-slate-800/50 rounded-3xl min-h-[300px] shadow-inner select-none relative overflow-hidden ${cursorClass}`}
+      className={`w-full p-4 bg-slate-900/35 border border-slate-800/50 rounded-3xl min-h-[260px] shadow-inner select-none relative ${cursorClass}`}
     >
       {/* Impossible Operation Alert Banner */}
       {stepStatus === 'fail' && currentStep?.description && (
@@ -1074,7 +1018,7 @@ export default function Visualizer({ structureId, state: mainState, currentStep,
           transformOrigin: 'center center',
           transition: isDragging ? 'none' : 'transform 0.15s ease-out',
         }}
-        className="w-full h-full flex items-center justify-center pointer-events-auto"
+        className="w-full min-h-[228px] flex items-center justify-center pointer-events-auto"
       >
         {renderContent()}
       </div>

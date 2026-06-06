@@ -52,3 +52,37 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
+
+/* Truncate 2 lines utility */
+.truncate-2-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Mobile-only visualizer horizontal scrollbar — below lg (1024px) */
+@media (max-width: 1023px) {
+  .vis-mobile-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
+    padding-bottom: 6px;
+  }
+  .vis-mobile-scroll::-webkit-scrollbar {
+    height: 4px;
+  }
+  .vis-mobile-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .vis-mobile-scroll::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 9999px;
+  }
+  .vis-mobile-scroll::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
+}

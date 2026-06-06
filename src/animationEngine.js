@@ -2620,7 +2620,11 @@ export function generateSteps(structureId, operation, currentState, inputs) {
   if (['bst', 'avl', 'linear_search', 'binary_search'].includes(structureId)) {
     steps.forEach(step => {
       if (step.state && step.state.nodes) {
-        step.state.nodes = updateTreeParents(step.state.nodes);
+        // Only apply updateTreeParents when nodes contains BST-style objects (not plain number arrays)
+        const firstNode = step.state.nodes[0];
+        if (firstNode !== null && firstNode !== undefined && typeof firstNode === 'object') {
+          step.state.nodes = updateTreeParents(step.state.nodes);
+        }
       }
     });
   }
